@@ -4,7 +4,8 @@ steps:
 - name: 'gcr.io/cloud-builders/npm'
   id: npm test the project
   entrypoint: 'npm'
-  args: ['test']
+  args:
+  - 'install && npm test'
 
 # Build the container image:
 - name: 'gcr.io/cloud-builders/docker'
