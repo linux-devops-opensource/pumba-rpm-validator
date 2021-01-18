@@ -3,9 +3,11 @@ steps:
 # Test the NodeJS project:
 - name: 'gcr.io/cloud-builders/npm'
   id: npm test the project
-  entrypoint: 'npm'
+  entrypoint: /bin/sh
   args:
-  - 'install && npm test'
+  - '-c'
+  - |
+    npm install && npm test
 
 # Build the container image:
 - name: 'gcr.io/cloud-builders/docker'
