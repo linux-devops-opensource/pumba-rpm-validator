@@ -1,13 +1,15 @@
 steps:
 
 # Test the NodeJS project:
-- name: 'gcr.io/cloud-builders/npm'
+- name: 'gcr.io/feisty-return-300415/rhel7.9-node14.15.3'
   id: npm test the project
   entrypoint: /bin/sh
   args:
   - '-c'
   - |
     npm install
+    npm test
+    npx eslint *.js
 
 # Build the container image:
 - name: 'gcr.io/cloud-builders/docker'

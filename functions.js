@@ -82,6 +82,10 @@ function testinstallRPM(dir, rpm) {
                 console.log(`Package ${rpm} has missing dependencies...`)
                 workingRPMS.push({ name: rpm, statusCode: 1, msg: "missing_deps" })
                 errDebug(err)
+            } else if (stderr.includes("Payload SHA256 ALT digest: BAD")) {
+                console.log(`Package ${rpm} is corrupt`)
+                workingRPMS.push({ name: rpm, statusCode: 2, msg: "corrupt_pkg" })
+                errDebug(err)
             } else {
                 console.log(`Unable to install package ${rpm}, run debug mode to view error`)
                 workingRPMS.push({ name: rpm, statusCode: 666, msg: 'unknown_err' } )
