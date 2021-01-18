@@ -73,8 +73,8 @@ function deletePackagefile(pkg) {
 function sendDataToPKGVal(pkgarray, ValURL, SessionID) {
     superDebug(JSON.stringify(pkgarray))
     if (pkgarray.length != 0){
-        data = JSON.stringify({"sid":SessionID,"statusCode":0,"pkgs":pkgarray});
-        put = {
+        let data = JSON.stringify({"sid":SessionID,"statusCode":0,"pkgs":pkgarray});
+        let put = {
             url: ValURL,
             method: 'PUT',
             headers: { 
