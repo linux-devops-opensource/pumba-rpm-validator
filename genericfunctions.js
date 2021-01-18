@@ -72,22 +72,26 @@ function deletePackagefile(pkg) {
 
 function sendDataToPKGVal(pkgarray, ValURL, SessionID) {
     superDebug(JSON.stringify(pkgarray))
-    data = JSON.stringify({"sid":SessionID,"statusCode":0,"pkgs":pkgarray});
-    post = {
-        url: ValURL,
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
-        data: data
-    };
-    axios(post)
-    .then(function (res) {
-        console.log('Sent package array to Package Validator')
-        superDebug(res)
-    })
-    .catch(function (err) {
-        console.log(`Error sending package array to Package validator, run debug to view error`)
-        errDebug(err)
-    })
+    if (pkgarray.length != 0){
+        data = JSON.stringify({"sid":SessionID,"statusCode":0,"pkgs":pkgarray});
+        put = {
+            url: ValURL,
+            method: 'PUT',
+            headers: { 
+              'Content-Type': 'application/json'
+            },
+            data: data
+        };
+        axios(put)
+        .then(function (res) {
+            console.log('Sent package array to Package Validator')
+            superDebug(res)
+        })
+        .catch(function (err) {
+            console.log(`Error sending package array to Package validator, run debug to view error`)
+            errDebug(err)
+        })
+    } else{
+        console.log(`no packages to validate`) 
+    }
 }

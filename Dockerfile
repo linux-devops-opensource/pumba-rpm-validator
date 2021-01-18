@@ -1,4 +1,4 @@
-FROM registry.redhat.io/rhel7:7.9
+FROM gcr.io/feisty-return-300415/rhel7.9-node14.15.3:latest
 
 WORKDIR /software/
 COPY rhel-7-server-rpms.repo /etc/yum.repos.d/

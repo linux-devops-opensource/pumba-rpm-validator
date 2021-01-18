@@ -11,11 +11,17 @@ let workingRPMS = []
 // if we don't call the functions from this block they will be imported to the test module and use the nested local functions and not as a global function
 // that we can stub
 const functions = {
+    filterPKG,
     validateRPMs,
     testinstallRPM,
     validation
 }
 module.exports = functions;
+
+async function filterPKG(StorageManagerURL) {
+    const rpms = await genfunc.getPackages(StorageManagerURL)
+    return rpms.filter(s=>~s.indexOf(".rpm"));
+}
 
 async function validation(rpmdir) {
     do {
