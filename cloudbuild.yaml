@@ -15,7 +15,7 @@ steps:
   args:
   - 'build'
   - '-t'
-  - 'gcr.io/$PROJECT_ID/pumba-rpm-validator:latests'
+  - 'gcr.io/$PROJECT_ID/pumba-rpm-validator:latest'
   - '.'
 
 # Push the image to Container Registry (Currently Google)
