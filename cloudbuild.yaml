@@ -7,7 +7,7 @@ steps:
   args:
   - '-c'
   - |
-    npm install && npm test
+    npm install
 
 # Build the container image:
 - name: 'gcr.io/cloud-builders/docker'
