@@ -4,7 +4,7 @@
   "description": "Validates the installation for rpms. made for pumba",
   "main": "index.js",
   "scripts": {
-    "test": "sudo mocha",
+    "test": "mocha",
     "start": "sudo node index.js"
   },
   "repository": {
