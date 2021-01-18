@@ -1,0 +1,25 @@
+steps:
+
+# Test the NodeJS project:
+- name: 'gcr.io/cloud-builders/npm'
+  id: npm test the project
+  entrypoint: 'npm'
+  args: ['test']
+
+# Build the container image:
+- name: 'gcr.io/cloud-builders/docker'
+  id: Build Image
+  args:
+  - 'build'
+  - '-t'
+  - 'gcr.io/$PROJECT_ID/pumba-rpm-validator:$SHORT_SHA'
+  - '.'
+
+# Push the image to Container Registry (Currently Google)
+# The PROJECT_ID and SHORT_SHA variables are automatically
+# replaced by Cloud Build.
+- name: 'gcr.io/cloud-builders/docker'
+  id: Push Image
+  args:
+  - 'push'
+  - 'gcr.io/$PROJECT_ID/pumba-rpm-validator:$SHORT_SHA'
