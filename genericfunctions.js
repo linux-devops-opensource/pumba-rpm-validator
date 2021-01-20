@@ -89,10 +89,10 @@ function genPkgArray(pkg, code, msg) {
     })
 }
 
-function sendDataToPKGVal(ValURL, SessionID) {
+function sendDataToPKGVal(ValURL, pkgtype, SessionID) {
     superDebug(JSON.stringify(pkgArray))
     if (pkgArray.length != 0){
-        let data = JSON.stringify({"sid":SessionID,"statusCode":0,"pkgs":pkgArray});
+        let data = JSON.stringify({"sid":SessionID,"type":pkgtype,"statusCode":0,"pkgs":pkgArray});
         let put = {
             url: ValURL,
             method: 'PUT',
