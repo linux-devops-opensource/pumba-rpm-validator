@@ -3,10 +3,8 @@ const superDebug = require('debug')('debug:stdout')
 const { execSync } = require('child_process')
 const fs = require('fs')
 const { stderr } = require('process')
-const Collect = require('@supercharge/collections')
 const genfunc = require('./genericfunctions')
 var loopbacktoken = false
-let workingRPMS = []
 
 // functions block and export and use of funxtions. in this file is so that we can use nested stubs in our tests.
 // if we don't call the functions from this block they will be imported to the test module and use the nested local functions and not as a global function
@@ -35,13 +33,7 @@ async function validation(rpmdir) {
         }
         superDebug(`end of while loop, loopbacktoken: ${loopbacktoken}`)
     } while (loopbacktoken)
-    superDebug(workingRPMS)
-    const uniqWorkingRPMS = await genfunc.uniqArray(workingRPMS)
-    const uniqWorkingRPMS2 = await Collect(workingRPMS).unique().all()
-    console.log(uniqWorkingRPMS, workingRPMS, uniqWorkingRPMS2)
-    console.log('hello there')
     console.log('RPM package validator has finished')
-    return uniqWorkingRPMS
 }
 
 function validateRPMs(rpmdir) {
@@ -79,21 +71,21 @@ function testinstallRPM(dir, rpm) {
             console.log(`Package ${rpm} installed successfully`)
             loopbacktoken = true
             genfunc.deletePackagefile(`${dir}/${rpm}`)
-            workingRPMS.push({ name: rpm, statusCode: 0, msg: "success" })
+            genfunc.genPkgArray(rpm,0,"success")
             res(true)
         } catch (err) {
             const stderr = err.stderr
             if (stderr.includes("Requires") || stderr.includes("nothing provides")) {
                 console.log(`Package ${rpm} has missing dependencies...`)
-                workingRPMS.push({ name: rpm, statusCode: 1, msg: "missing_deps" })
+                genfunc.genPkgArray(rpm,1,"missing_deps")
                 errDebug(err)
             } else if (stderr.includes("Payload SHA256 ALT digest: BAD")) {
                 console.log(`Package ${rpm} is corrupt`)
-                workingRPMS.push({ name: rpm, statusCode: 2, msg: "corrupt_pkg" })
+                genfunc.genPkgArray(rpm,2,"corrupt_pkg")
                 errDebug(err)
             } else {
                 console.log(`Unable to install package ${rpm}, run debug mode to view error`)
-                workingRPMS.push({ name: rpm, statusCode: 666, msg: 'unknown_err' } )
+                genfunc.genPkgArray(rpm,666,"unknown_err")
                 errDebug(err)
             }
             rej(err)

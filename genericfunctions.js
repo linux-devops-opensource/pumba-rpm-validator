@@ -2,12 +2,13 @@ const axios = require('axios')
 const fs = require('fs')
 const errDebug = require('debug')('debug:err')
 const superDebug = require('debug')('debug:stdout')
+let pkgArray = []
 
 const functions = {
     getPackages,
     downloadPackages,
     deletePackagefile,
-    uniqArray,
+    genPkgArray,
     sendDataToPKGVal
 }
 module.exports = functions;
@@ -71,21 +72,27 @@ function deletePackagefile(pkg) {
   })
 }
 
-function uniqArray(array) {
+function genPkgArray(pkg, code, msg) {
     return new Promise ((res, rej) => {
         try {
-            const uArray = Array.from(new Set(array))
-            res(uArray)
+            if (pkgArray.some(e => e.name === pkg)) {
+                const index = pkgArray.findIndex(e => e.name === pkg)
+                if (index > -1) {
+                    pkgArray.splice(index, 1)
+                }
+            }
+            pkgArray.push({ name: pkg, statusCode: code, msg: msg})
+            res(true)
         } catch {
-            rej("Unable to uniq the pkg array")
+            rej("Unable to push to pkg array")
         }
     })
 }
 
-function sendDataToPKGVal(pkgarray, ValURL, SessionID) {
-    superDebug(JSON.stringify(pkgarray))
-    if (pkgarray.length != 0){
-        let data = JSON.stringify({"sid":SessionID,"statusCode":0,"pkgs":pkgarray});
+function sendDataToPKGVal(ValURL, SessionID) {
+    superDebug(JSON.stringify(pkgArray))
+    if (pkgArray.length != 0){
+        let data = JSON.stringify({"sid":SessionID,"statusCode":0,"pkgs":pkgArray});
         let put = {
             url: ValURL,
             method: 'PUT',
