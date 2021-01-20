@@ -3,6 +3,7 @@ const superDebug = require('debug')('debug:stdout')
 const { execSync } = require('child_process')
 const fs = require('fs')
 const { stderr } = require('process')
+const Collect = require('@supercharge/collections')
 const genfunc = require('./genericfunctions')
 var loopbacktoken = false
 let workingRPMS = []
@@ -35,8 +36,12 @@ async function validation(rpmdir) {
         superDebug(`end of while loop, loopbacktoken: ${loopbacktoken}`)
     } while (loopbacktoken)
     superDebug(workingRPMS)
+    const uniqWorkingRPMS = await genfunc.uniqArray(workingRPMS)
+    const uniqWorkingRPMS2 = await Collect(workingRPMS).unique().all()
+    console.log(uniqWorkingRPMS, workingRPMS, uniqWorkingRPMS2)
+    console.log('hello there')
     console.log('RPM package validator has finished')
-    return workingRPMS
+    return uniqWorkingRPMS
 }
 
 function validateRPMs(rpmdir) {

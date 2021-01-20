@@ -7,6 +7,7 @@ const functions = {
     getPackages,
     downloadPackages,
     deletePackagefile,
+    uniqArray,
     sendDataToPKGVal
 }
 module.exports = functions;
@@ -68,6 +69,17 @@ function deletePackagefile(pkg) {
           rej(err)
       }
   })
+}
+
+function uniqArray(array) {
+    return new Promise ((res, rej) => {
+        try {
+            const uArray = Array.from(new Set(array))
+            res(uArray)
+        } catch {
+            rej("Unable to uniq the pkg array")
+        }
+    })
 }
 
 function sendDataToPKGVal(pkgarray, ValURL, SessionID) {

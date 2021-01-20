@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/linux-devops-opensource/pumba#readme",
   "dependencies": {
+    "@supercharge/collections": "^3.1.2",
     "axios": "^0.21.1",
     "debug": "^4.3.1"
   },
