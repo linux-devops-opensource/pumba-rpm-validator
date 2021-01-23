@@ -1,15 +1,17 @@
 const func = require('./functions')
 const genfunc = require('./genericfunctions')
 const process = require('process')
+
 const SessionID = process.env.SID || "packages"
 const StorageManagerURL = `http://pumba-storage-manager:3000/${SessionID}/`
 const PKGValidatorURL = `http://pumba-validator:3000/session/${SessionID}`
-const targetDir = './rpms4test'
+const targetDir = './pkgs4test'
 const pkgtype = "rpm"
+const fileextention = ".rpm"
 
 async function Start() {
-    const rpms = await func.filterPKG(StorageManagerURL)
-    await genfunc.downloadPackages(rpms, StorageManagerURL, targetDir)
+    const pkgs = await genfunc.getPackages(StorageManagerURL, fileextention)
+    await genfunc.downloadPackages(pkgs, StorageManagerURL, targetDir)
     await func.validation(targetDir)
     genfunc.sendDataToPKGVal(PKGValidatorURL, pkgtype, SessionID)
 }

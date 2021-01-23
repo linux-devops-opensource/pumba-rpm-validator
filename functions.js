@@ -11,42 +11,36 @@ var loopbacktoken = false
 // if we don't call the functions from this block they will be imported to the test module and use the nested local functions and not as a global function
 // that we can stub
 const functions = {
-    filterPKG,
-    validateRPMs,
-    testinstallRPM,
+    validatePKGs,
+    testinstallPKG,
     validation
 }
 module.exports = functions;
 
-async function filterPKG(StorageManagerURL) {
-    const rpms = await genfunc.getPackages(StorageManagerURL)
-    return rpms.filter(s=>~s.indexOf(".rpm"));
-}
-
-async function validation(rpmdir) {
+async function validation(pkgdir) {
     do {
         loopbacktoken = false
         superDebug(`start while loop, loopbacktoken: ${loopbacktoken}`)
         try {
-            await validateRPMs(rpmdir)
+            await validatePKGs(pkgdir)
         } catch (err) {
             errDebug(err)
         }
         superDebug(`end of while loop, loopbacktoken: ${loopbacktoken}`)
     } while (loopbacktoken)
-    console.log('RPM package validator has finished')
+    console.log('Package validator has finished')
 }
 
-function validateRPMs(rpmdir) {
+function validatePKGs(pkgdir) {
     return new Promise((res, rej) => {
         var itemsProcessed = 0
-        if (fs.readdirSync(rpmdir).length != 0) {
-            fs.readdirSync(rpmdir).forEach(async (file, index, array) => {
-                let filetype = await FileType.fromFile(`${rpmdir}/${file}`)
+        if (fs.readdirSync(pkgdir).length != 0) {
+            fs.readdirSync(pkgdir).forEach(async (file, index, array) => {
+                let filetype = await FileType.fromFile(`${pkgdir}/${file}`)
                 itemsProcessed++
                 if (typeof filetype !== 'undefined' && filetype.mime === "application/x-rpm") {
                     try {   
-                        await testinstallRPM(rpmdir, file)
+                        await testinstallPKG(pkgdir, file)
                     } catch (err) {
                         errDebug(err)
                     }
@@ -54,44 +48,43 @@ function validateRPMs(rpmdir) {
                         res(true)
                     }
                 } else {
-                    const err = `File "${file}" is not an RPM package`
                     genfunc.genPkgArray(file,50,"bad_file_type")
-                    fs.unlinkSync(`${rpmdir}/${file}`)
-                    rej(err)
+                    fs.unlinkSync(`${pkgdir}/${file}`)
+                    rej(`File "${file}" is not an RPM package`)
                 }
             })
-            superDebug('end of readdir foreach')
+            superDebug('End of readdir foreach')
         } else {
-            res(`There are no files in the validate directory: ${rpmdir}`)
+            res(`There are no files in the validate directory: ${pkgdir}`)
         }
     })
 }
 
-function testinstallRPM(dir, rpm) {
+function testinstallPKG(dir, pkg) {
     return new Promise((res, rej) => {
-        console.log(`Validating Package ${rpm}`)
-        superDebug(`Stage testinstallRPM:start loopbacktoken: ${loopbacktoken}`)
+        console.log(`Validating Package ${pkg}`)
+        superDebug(`Stage testinstallPKG:start loopbacktoken: ${loopbacktoken}`)
         try {
-            const stdout = execSync(`yum -y install ${dir}/${rpm} --setopt=tsflags=test --setopt=keepcache=0`, {stdio: [stderr]}).toString()
+            const stdout = execSync(`yum -y install ${dir}/${pkg} --setopt=tsflags=test --setopt=keepcache=0`, {stdio: [stderr]}).toString()
             superDebug(stdout)
-            console.log(`Package ${rpm} installed successfully`)
+            console.log(`Package ${pkg} installed successfully`)
             loopbacktoken = true
-            genfunc.deletePackagefile(`${dir}/${rpm}`)
-            genfunc.genPkgArray(rpm,0,"success")
+            genfunc.deletePackagefile(`${dir}/${pkg}`)
+            genfunc.genPkgArray(pkg,0,"success")
             res(true)
         } catch (err) {
             const stderr = err.stderr
             if (stderr.includes("Requires")) {
-                console.log(`Package ${rpm} has missing dependencies...`)
-                genfunc.genPkgArray(rpm,1,"missing_deps")
+                console.log(`Package ${pkg} has missing dependencies...`)
+                genfunc.genPkgArray(pkg,1,"missing_deps")
                 errDebug(err)
             } else if (stderr.includes("Payload SHA256 ALT digest: BAD")) {
-                console.log(`Package ${rpm} is corrupt`)
-                genfunc.genPkgArray(rpm,2,"corrupt_pkg")
+                console.log(`Package ${pkg} is corrupt`)
+                genfunc.genPkgArray(pkg,2,"corrupt_pkg")
                 errDebug(err)
             } else {
-                console.log(`Unable to install package ${rpm}, run debug mode to view error`)
-                genfunc.genPkgArray(rpm,666,"unknown_err")
+                console.log(`Unable to install package ${pkg}, run debug mode to view error`)
+                genfunc.genPkgArray(pkg,666,"unknown_err")
                 errDebug(err)
             }
             rej(err)

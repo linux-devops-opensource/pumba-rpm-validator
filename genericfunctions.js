@@ -13,13 +13,13 @@ const functions = {
 }
 module.exports = functions;
 
-async function getPackages(dlUrl) {
+async function getPackages(dlUrl, extention) {
     const res = await axios({
         url: dlUrl,
         method: 'GET'
     })
     superDebug(res.data)
-    return res.data
+    return res.data.filter(s=>~s.indexOf(extention));
 }
 
 async function downloadPackages(packagelist, dlUrl, targetDir) {
