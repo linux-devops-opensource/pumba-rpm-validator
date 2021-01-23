@@ -4,6 +4,7 @@ const { execSync } = require('child_process')
 const fs = require('fs')
 const { stderr } = require('process')
 const genfunc = require('./genericfunctions')
+const FileType = require('file-type')
 var loopbacktoken = false
 
 // functions block and export and use of funxtions. in this file is so that we can use nested stubs in our tests.
@@ -38,23 +39,28 @@ async function validation(rpmdir) {
 
 function validateRPMs(rpmdir) {
     return new Promise((res, rej) => {
+        var itemsProcessed = 0
         if (fs.readdirSync(rpmdir).length != 0) {
-            fs.readdirSync(rpmdir).forEach(async (file) => {
-                let stdout = execSync(`file ${rpmdir}/${file}`).toString()
-                if (stdout.includes("RPM")) {
-                    try {
+            fs.readdirSync(rpmdir).forEach(async (file, index, array) => {
+                let filetype = await FileType.fromFile(`${rpmdir}/${file}`)
+                itemsProcessed++
+                if (typeof filetype !== 'undefined' && filetype.mime === "application/x-rpm") {
+                    try {   
                         await testinstallRPM(rpmdir, file)
                     } catch (err) {
-                        rej(err)
+                        errDebug(err)
                     }
-                    res(true)
+                    if (itemsProcessed === array.length) {
+                        res(true)
+                    }
                 } else {
                     const err = `File "${file}" is not an RPM package`
+                    genfunc.genPkgArray(file,50,"bad_file_type")
                     fs.unlinkSync(`${rpmdir}/${file}`)
-                    errDebug(err)
                     rej(err)
                 }
             })
+            superDebug('end of readdir foreach')
         } else {
             res(`There are no files in the validate directory: ${rpmdir}`)
         }
@@ -75,7 +81,7 @@ function testinstallRPM(dir, rpm) {
             res(true)
         } catch (err) {
             const stderr = err.stderr
-            if (stderr.includes("Requires") || stderr.includes("nothing provides")) {
+            if (stderr.includes("Requires")) {
                 console.log(`Package ${rpm} has missing dependencies...`)
                 genfunc.genPkgArray(rpm,1,"missing_deps")
                 errDebug(err)

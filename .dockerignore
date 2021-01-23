@@ -1,5 +1,8 @@
 .dockerignore
 .gitignore
+.eslint
+cloudbuild.yaml
+Dockerfile
 rpms4test
 node_modules
 test
