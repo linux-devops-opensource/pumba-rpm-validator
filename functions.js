@@ -39,24 +39,28 @@ async function validation(rpmdir) {
 
 function validateRPMs(rpmdir) {
     return new Promise((res, rej) => {
+        var itemsProcessed = 0
         if (fs.readdirSync(rpmdir).length != 0) {
-            fs.readdirSync(rpmdir).forEach(async (file) => {
+            fs.readdirSync(rpmdir).forEach(async (file, index, array) => {
                 let filetype = await FileType.fromFile(`${rpmdir}/${file}`)
-                if (filetype.mime === "application/x-rpm") {
-                    try {
+                itemsProcessed++
+                if (typeof filetype !== 'undefined' && filetype.mime === "application/x-rpm") {
+                    try {   
                         await testinstallRPM(rpmdir, file)
                     } catch (err) {
-                        rej(err)
+                        errDebug(err)
                     }
-                    res(true)
+                    if (itemsProcessed === array.length) {
+                        res(true)
+                    }
                 } else {
                     const err = `File "${file}" is not an RPM package`
                     genfunc.genPkgArray(file,50,"bad_file_type")
                     fs.unlinkSync(`${rpmdir}/${file}`)
-                    errDebug(err)
                     rej(err)
                 }
             })
+            superDebug('end of readdir foreach')
         } else {
             res(`There are no files in the validate directory: ${rpmdir}`)
         }
