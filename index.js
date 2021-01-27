@@ -2,8 +2,8 @@ const func = require('./functions')
 const genfunc = require('./genericfunctions')
 const process = require('process')
 
-const SessionID = process.env.SID || "packages"
-const StorageManagerURL = `http://pumba-storage-manager:3000/${SessionID}/`
+const SessionID = process.env.SID || "testsid"
+const StorageManagerURL = `http://pumba-storage-manager:3000/packages/${SessionID}/`
 const PKGValidatorURL = `http://pumba-validator:3000/session/${SessionID}`
 const targetDir = './pkgs4test'
 const pkgtype = "rpm"
