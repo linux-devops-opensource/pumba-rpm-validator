@@ -1,4 +1,4 @@
-FROM gcr.io/feisty-return-300415/pumba-ubi-minimal-node14:latest
+FROM gcr.io/sodium-inverter-285420/pumba-ubi-minimal-node14:latest
 
 WORKDIR /software/
 RUN microdnf install yum && \
